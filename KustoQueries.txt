@@ -1,0 +1,19 @@
+// Parse JSON data from Application Insights Trace Listener
+traces | order by timestamp desc
+| extend EventId_ = tostring(customDimensions.EventId)
+| where EventId_ == "1" and timestamp > datetime('2020-09-24 2:59pm')
+| extend m=parse_json(message)
+| project m
+| evaluate bag_unpack(m)
+
+// Parse JSON data from Application Insights Telemetry Client custom events
+customEvents | order by timestamp desc 
+| project customDimensions
+| evaluate bag_unpack(customDimensions)
+
+// Parse JSON data from Log4Net Application Insights Appender
+traces | order by timestamp desc
+| where message contains "log4net" and timestamp > datetime('2020-10-07 00:00am')
+| extend m=parse_json(message)
+| project m
+| evaluate bag_unpack(m)
